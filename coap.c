@@ -1,75 +1,68 @@
 #include <string.h>
+#include <stdint.h>
 
-#include "coap.h"
+#include "net/gcoap.h"
+#include "net/ipv6/addr.h"
 #include "feucht.h"
 
 #include "arpa/inet.h"
 #include "byteorder.h"
 
 /**
- * CoAP connection context.
+ * CoAP destination endpoint.
  */
-static coap_context_t *ctx;
-
-/**
- * CoAP destination address.
- */
-static coap_address_t dst;
+static sock_udp_ep_t ep;
 
 /**
  * End point for updating humidity values.
  */
-#define HUMIDITY_PATH "humidity"
+#define HUMIDITY_PATH "/humidity"
 
-/**
- * PDU size used by CoAP.
- */
-#ifndef COAP_DEFAULT_PDU_SIZE
-	#define COAP_DEFAULT_PDU_SIZE 64
-#endif
+static void _resp_handler(unsigned req_state, coap_pkt_t* pdu,
+		 sock_udp_ep_t *remote)
+{
+	(void)remote;
+
+	if (req_state == GCOAP_MEMO_TIMEOUT) {
+		printf("gcoap: timeout for msg ID %02u\n", coap_get_id(pdu));
+		return;
+	} else if (req_state == GCOAP_MEMO_ERR) {
+		puts("gcoap: error in response");
+		return;
+	}
+
+	char *class_str = (coap_get_code_class(pdu) == COAP_CLASS_SUCCESS)
+		? "Success" : "Error";
+	printf("gcoap: response %s\n", class_str);
+}
 
 int
-init_protocol(void)
+init_protocol(ipv6_addr_t *remote)
 {
-	coap_address_t laddr;
+	ep.family = AF_INET6;
+	ep.netif  = SOCK_ADDR_ANY_NETIF;
+	ep.port   = FEUCHT_PORT;
 
-	coap_address_init(&laddr);
-	laddr.addr.sin.sin_family = AF_INET6;
-	laddr.addr.sin.sin_port = htons(FEUCHT_PORT);
-	laddr.addr.sin.sin_addr.s_addr = INADDR_ANY;
-
-	if (!(ctx = coap_new_context(&laddr)))
-		return -ENOMEM;
-
-	coap_address_init(&dst);
-	dst.addr.sin.sin_family = AF_INET6;
-	dst.addr.sin.sin_port = htons(FEUCHT_PORT);
-	if (inet_pton(AF_INET6, FEUCHT_HOST, &dst.addr.sin6.sin6_addr) != 1)
-		return -EINVAL;
-
+	memcpy(&ep.addr.ipv6[0], &remote->u8[0], sizeof(remote->u8));
 	return 0;
 }
 
 int
 update_humidity(char *buf, size_t count)
 {
-	coap_pdu_t *req;
+	ssize_t len;
+	coap_pkt_t pdu;
+	uint8_t pbuf[GCOAP_PDU_BUF_SIZE];
 
-	if (!(req = coap_pdu_init(COAP_MESSAGE_CON, COAP_REQUEST_POST,
-			coap_new_message_id(ctx), COAP_DEFAULT_PDU_SIZE)))
+	if (gcoap_req_init(&pdu, pbuf, GCOAP_PDU_BUF_SIZE, 2, HUMIDITY_PATH))
 		return -ENOMEM;
+	memcpy(pdu.payload, buf, count);
 
-	coap_add_option(req, COAP_OPTION_URI_PATH,
-			strlen(HUMIDITY_PATH), (unsigned char*)HUMIDITY_PATH);
-	coap_add_data(req, count, (unsigned char*)buf);
+	if ((len = gcoap_finish(&pdu, count, COAP_FORMAT_TEXT)) < 0)
+		return len;
 
-	if (COAP_INVALID_TID == coap_send_confirmed(ctx, &dst, req)) {
-		coap_delete_pdu(req);
+	if (!gcoap_req_send2(pbuf, len, &ep, _resp_handler))
 		return -EIO;
-	}
-
-	coap_read(ctx);
-	coap_dispatch(ctx);
 
 	return 0;
 }

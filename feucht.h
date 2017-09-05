@@ -3,14 +3,12 @@
 #endif
 
 #ifndef FEUCHT_PORT
-#if FEUCHT_PROTO == __9P__
-	#define FEUCHT_PORT 5640
-#elif FEUCHT_PORT == __COAP__
-	#define FEUCHT_PORT 5683
-#else
-	#error "Unknown FEUCHT_PROTO."
-#endif
+	#error "FEUCHT_PORT was not defined"
 #endif
 
-int init_protocol(void);
+#ifndef FEUCHT_INTERVAL
+	#define FEUCHT_INTERVAL 60
+#endif
+
+int init_protocol(ipv6_addr_t *remote);
 int update_humidity(char *buf, size_t count);
