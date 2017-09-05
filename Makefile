@@ -1,5 +1,6 @@
 # Name of your application
 APPLICATION = feucht
+INCLUDES += -I$(CURDIR)/include
 
 # Board for which the application should be compiled
 BOARD ?= pba-d-01-kw2x
@@ -26,22 +27,20 @@ USEMODULE += shell_commands
 # Module required for reading from the sensor
 USEMODULE += hdc1000
 
-# Set SRC manually to select the protocol backend
-#export NO_AUTO_SRC := 1 # XXX comment me
-SRC := feucht.c
-
 # Backend specific files and modules
 ifeq (COAP,$(FEUCHT_PROTO))
-  SRC += coap.c
+  DIRS += coap
   FEUCHT_PORT ?= 5683
 
   USEMODULE += gcoap
+  USEMODULE += coap
 else
   ifeq (9P,$(FEUCHT_PROTO))
-    SRC += 9p.c
+    DIRS += 9p
     FEUCHT_PORT ?= 5640
 
     USEMODULE += gnrc_tcp
+    USEMODULE += 9p
   else
     $(error Unknown protocol backend.)
   endif
