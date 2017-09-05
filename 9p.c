@@ -51,14 +51,10 @@ sendfn(void *buf, size_t count)
 }
 
 int
-init_protocol(void)
+init_protocol(ipv6_addr_t *remote)
 {
 	int ret;
-	ipv6_addr_t remote;
 	_9pfid *rfid;
-
-	if (!ipv6_addr_from_str(&remote, FEUCHT_HOST))
-		return -EINVAL;
 
 	gnrc_tcp_tcb_init(&tcb);
 	if ((ret = gnrc_tcp_open_active(&tcb, AF_INET6,
