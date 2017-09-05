@@ -54,7 +54,7 @@ main(void)
 		}
 
 		memset(buf, '\0', sizeof(buf));
-		ret = snprintf(buf, sizeof(buf) - 1, "%d", 2342);
+		ret = snprintf(buf, sizeof(buf) - 1, "%d", hum);
 		buf[ret] = '\n';
 
 		if ((ret = update_humidity(buf, ret + 1))) {
