@@ -11,9 +11,6 @@ CFLAGS += -DNDEBUG
 # Change this to 0 show compiler invocation lines
 QUIET ?= 1
 
-# Path to the RIOT submodule
-RIOTBASE ?= $(CURDIR)/../../vendor/RIOT
-
 # Modules required for both protocol backends
 USEMODULE += gnrc_netdev_default
 USEMODULE += auto_init_gnrc_netif
@@ -39,6 +36,7 @@ else
     DIRS += 9p
     FEUCHT_PORT ?= 5640
 
+    USEPKG += ninenano
     USEMODULE += gnrc_tcp
     USEMODULE += 9p
   else

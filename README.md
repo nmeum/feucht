@@ -21,8 +21,9 @@ variable. The latter is optional.
 Known Bugs
 ----------
 
-The `9P` backend is currently broken because `9P` is not shipped as a
-[RIOT][1] pkg at the moment.
+The `ninenano` package is currently not included in the upstream RIOT
+repeository, please make `RIOTBASE` point to a checkout of my [RIOT
+fork][7] instead for now.
 
 License
 -------
@@ -46,3 +47,4 @@ with this program. If not, see <http://www.gnu.org/licenses/>.
 [4]: http://riot-os.org/api/group__net__gcoap.html
 [5]: http://9p.cat-v.org/
 [6]: https://tools.ietf.org/html/rfc7228
+[7]: https://github.com/nmeum/RIOT
