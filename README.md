@@ -11,7 +11,7 @@ central server. The protocol used for this transmission can be
 configured using the `FEUCHT_PROTO` environment variable. Currently
 valid values are:
 
-1. `9P` for using the [9P][5] protocol with [9RIOT][3]
+1. `9P` for using the [9P][5] protocol with [ninenano][3]
 2. `COAP` for using the [CoAP][6] protocol with [gcoap][4]
 
 Besides the address and port of the protocol server need to be
@@ -43,7 +43,7 @@ with this program. If not, see <http://www.gnu.org/licenses/>.
 
 [1]: http://riot-os.org/
 [2]: http://www.ti.com/lit/ds/symlink/hdc1000.pdf
-[3]: https://github.com/nmeum/9RIOT
+[3]: https://github.com/nmeum/ninenano
 [4]: http://riot-os.org/api/group__net__gcoap.html
 [5]: http://9p.cat-v.org/
 [6]: https://tools.ietf.org/html/rfc7228
