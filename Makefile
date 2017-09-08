@@ -50,4 +50,9 @@ ifneq (,$(FEUCHT_HOST))
   CFLAGS += -DFEUCHT_HOST="\"$(FEUCHT_HOST)\""
 endif
 
+# IEEE 802.15.4 channel to use
+ifneq (,$(FEUCHT_CHANNEL))
+  CFLAGS += -DIEEE802154_DEFAULT_CHANNEL="$(FEUCHT_CHANNEL)"
+endif
+
 include $(RIOTBASE)/Makefile.include
