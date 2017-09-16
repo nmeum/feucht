@@ -58,6 +58,7 @@ update_humidity(char *buf, size_t count)
 		return -ENOMEM;
 	memcpy(pdu.payload, buf, count);
 
+	coap_hdr_set_type(pdu.hdr, COAP_TYPE_CON);
 	if ((len = gcoap_finish(&pdu, count, COAP_FORMAT_TEXT)) < 0)
 		return len;
 
