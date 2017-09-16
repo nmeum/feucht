@@ -60,7 +60,7 @@ init_protocol(ipv6_addr_t *remote)
 
 	gnrc_tcp_tcb_init(&tcb);
 	if ((ret = gnrc_tcp_open_active(&tcb, AF_INET6,
-			(uint8_t *)&remote, FEUCHT_PORT, 0)))
+			(uint8_t *)remote, FEUCHT_PORT, 0)))
 		return ret;
 
 	_9pinit(&ctx, recvfn, sendfn);
