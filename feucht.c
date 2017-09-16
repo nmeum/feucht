@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "hdc1000.h"
 #include "hdc1000_params.h"
@@ -55,6 +56,8 @@ main(void)
 
 		memset(buf, '\0', sizeof(buf));
 		ret = snprintf(buf, sizeof(buf) - 1, "%d", hum);
+
+		assert(ret < sizeof(buf));
 		buf[ret] = '\n';
 
 		if ((ret = update_humidity(buf, ret + 1))) {
