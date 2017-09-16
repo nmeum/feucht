@@ -42,7 +42,7 @@ main(void)
 	puts("Configured network interfaces:");
 	_netif_config(0, NULL);
 
-	puts("Initialize protocol backend:");
+	puts("Initialize protocol backend...");
 	if ((ret = init_protocol(&remote))) {
 		fprintf(stderr, "init_protocol failed: %d\n", ret);
 		return EXIT_FAILURE;
@@ -65,6 +65,7 @@ main(void)
 			continue;
 		}
 
+		puts("Humidity has been updated!");
 		xtimer_sleep(FEUCHT_INTERVAL);
 	}
 
