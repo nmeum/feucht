@@ -39,6 +39,8 @@ else
     USEPKG += ninenano
     USEMODULE += gnrc_tcp
     USEMODULE += 9p
+
+    CFLAGS += -D_9P_MSIZE=127 -D_9P_MAXFIDS=2
   else
     $(error Unknown protocol backend.)
   endif
