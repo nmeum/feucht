@@ -20,6 +20,7 @@ USEMODULE += xtimer
 # Modules for debugging purposes
 USEMODULE += gnrc_icmpv6_echo
 USEMODULE += shell_commands
+USEMODULE += periph
 
 # Module required for reading from the sensor
 USEMODULE += hdc1000

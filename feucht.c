@@ -6,6 +6,7 @@
 #include "hdc1000.h"
 #include "hdc1000_params.h"
 
+#include "periph/gpio.h"
 #include "net/ipv6/addr.h"
 #include "xtimer.h"
 #include "feucht.h"
@@ -21,10 +22,17 @@ extern int _netif_config(int argc, char **argv);
 int
 main(void)
 {
-	int ret;
+	int pin, ret;
 	char buf[17];
 	int16_t temp, hum;
 	ipv6_addr_t remote;
+
+	pin = GPIO_PIN(PORT_E, 2);
+	if (gpio_init(pin, GPIO_OUT) == -1) {
+		fprintf(stderr, "Couldn't initialize the GPIO pin\n");
+		return EXIT_FAILURE;
+	}
+	gpio_clear(pin);
 
 	if ((ret = hdc1000_init(&hdc, &hdc1000_params[0])) != HDC1000_OK) {
 		fprintf(stderr, "Couldn't initialize HDC1000: %d\n", ret);
@@ -49,6 +57,8 @@ main(void)
 	}
 
 	for (;;) {
+		gpio_set(pin);
+
 		if (hdc1000_read(&hdc, &temp, &hum) != HDC1000_OK) {
 			fprintf(stderr, "hdc1000_read failed\n");
 			continue;
@@ -65,7 +75,9 @@ main(void)
 			continue;
 		}
 
-		puts("Humidity has been updated!");
+		xtimer_sleep(1);
+		gpio_clear(pin);
+
 		xtimer_sleep(FEUCHT_INTERVAL);
 	}
 

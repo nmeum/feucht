@@ -7,7 +7,7 @@
 #endif
 
 #ifndef FEUCHT_INTERVAL
-	#define FEUCHT_INTERVAL 60
+	#define FEUCHT_INTERVAL 10
 #endif
 
 int init_protocol(ipv6_addr_t *remote);
