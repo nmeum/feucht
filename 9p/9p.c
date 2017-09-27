@@ -4,6 +4,8 @@
 #include "net/gnrc/ipv6.h"
 #include "net/gnrc/tcp.h"
 
+#define GNRC_TIMEOUT 10 * 10000000
+
 /**
  * GNRC transmission control block.
  */
@@ -34,8 +36,7 @@ static _9pfid *hfid;
 static ssize_t
 recvfn(void *buf, size_t count)
 {
-	return gnrc_tcp_recv(&tcb, buf,
-		count, GNRC_TCP_CONNECTION_TIMEOUT_DURATION);
+	return gnrc_tcp_recv(&tcb, buf, count, GNRC_TIMEOUT);
 }
 
 /**
@@ -48,8 +49,7 @@ recvfn(void *buf, size_t count)
 static ssize_t
 sendfn(void *buf, size_t count)
 {
-	return gnrc_tcp_send(&tcb, buf,
-		count, GNRC_TCP_CONNECTION_TIMEOUT_DURATION);
+	return gnrc_tcp_send(&tcb, buf, count, GNRC_TIMEOUT);
 }
 
 int
