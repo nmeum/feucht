@@ -3,10 +3,13 @@
 
 #include "net/gcoap.h"
 #include "net/ipv6/addr.h"
-#include "feucht.h"
+#include "net/netopt.h"
 
+#include "feucht.h"
 #include "arpa/inet.h"
 #include "byteorder.h"
+
+extern kernel_pid_t netif;
 
 /**
  * CoAP destination endpoint.
@@ -21,13 +24,23 @@ static sock_udp_ep_t ep;
 static void _resp_handler(unsigned req_state, coap_pkt_t* pdu,
 		 sock_udp_ep_t *remote)
 {
+	int ret;
+	netopt_state_t state;
+
 	(void)remote;
 
+	state = NETOPT_STATE_SLEEP;
+	if ((ret = gnrc_netapi_set(netif, NETOPT_STATE,
+			0, &state, sizeof(&state)))) {
+		fprintf(stderr, "gnrc_netapi_set failed: %d\n", ret);
+		return;
+	}
+
 	if (req_state == GCOAP_MEMO_TIMEOUT) {
-		printf("gcoap: timeout for msg ID %02u\n", coap_get_id(pdu));
+		fprintf(stderr, "gcoap: timeout for msg ID %02u\n", coap_get_id(pdu));
 		return;
 	} else if (req_state == GCOAP_MEMO_ERR) {
-		puts("gcoap: error in response");
+		fprintf(stderr, "gcoap: error in response\n");
 		return;
 	}
 

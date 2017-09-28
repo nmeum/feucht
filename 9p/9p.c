@@ -1,10 +1,14 @@
-#include "9p.h"
-
 #include "net/af.h"
+#include "net/netopt.h"
 #include "net/gnrc/ipv6.h"
 #include "net/gnrc/tcp.h"
 
+#include "9p.h"
+#include "feucht.h"
+
 #define GNRC_TIMEOUT 10 * 10000000
+
+extern kernel_pid_t netif;
 
 /**
  * GNRC transmission control block.
@@ -36,7 +40,19 @@ static _9pfid *hfid;
 static ssize_t
 recvfn(void *buf, size_t count)
 {
-	return gnrc_tcp_recv(&tcb, buf, count, GNRC_TIMEOUT);
+	int ret;
+	size_t nbytes;
+	netopt_state_t state;
+
+	nbytes = gnrc_tcp_recv(&tcb, buf, count, GNRC_TIMEOUT);
+	if (nbytes >= 0) {
+		state = NETOPT_STATE_SLEEP;
+		if ((ret = gnrc_netapi_set(netif, NETOPT_STATE,
+				0, &state, sizeof(&state))))
+			return ret;
+	}
+
+	return nbytes;
 }
 
 /**

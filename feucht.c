@@ -6,10 +6,18 @@
 #include "hdc1000.h"
 #include "hdc1000_params.h"
 
-#include "periph/gpio.h"
 #include "net/ipv6/addr.h"
+#include "net/gnrc/netif.h"
+#include "net/netopt.h"
+
+#include "periph/gpio.h"
 #include "xtimer.h"
 #include "feucht.h"
+
+/**
+ * Pid of the thread for the radio module.
+ */
+kernel_pid_t netif;
 
 /**
  * HDC1000 device.
@@ -24,8 +32,10 @@ main(void)
 {
 	int pin, ret;
 	char buf[17];
+	size_t i, nifs;
 	int16_t temp, hum;
 	ipv6_addr_t remote;
+	kernel_pid_t ifs[GNRC_NETIF_NUMOF];
 
 	pin = GPIO_PIN(PORT_E, 2);
 	if (gpio_init(pin, GPIO_OUT) == -1) {
@@ -50,6 +60,12 @@ main(void)
 	puts("Configured network interfaces:");
 	_netif_config(0, NULL);
 
+	nifs = gnrc_netif_get(ifs);
+	printf("Found %zu network interfaces.\n", nifs);
+	for (i = 1; i <= nifs; i++)
+		printf("Network interface %zu has pid %d\n", i, ifs[i]);
+	netif = ifs[0];
+
 	puts("Initialize protocol backend...");
 	if ((ret = init_protocol(&remote))) {
 		fprintf(stderr, "init_protocol failed: %d\n", ret);
@@ -66,7 +82,6 @@ main(void)
 
 		memset(buf, '\0', sizeof(buf));
 		ret = snprintf(buf, sizeof(buf) - 1, "%d", hum);
-
 		assert(ret < sizeof(buf));
 		buf[ret] = '\n';
 
