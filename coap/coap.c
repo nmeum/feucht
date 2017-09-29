@@ -31,10 +31,8 @@ static void _resp_handler(unsigned req_state, coap_pkt_t* pdu,
 
 	state = NETOPT_STATE_SLEEP;
 	if ((ret = gnrc_netapi_set(netif, NETOPT_STATE,
-			0, &state, sizeof(&state)))) {
-		fprintf(stderr, "gnrc_netapi_set failed: %d\n", ret);
+			0, &state, sizeof(netopt_state_t)) < 0))
 		return;
-	}
 
 	if (req_state == GCOAP_MEMO_TIMEOUT) {
 		fprintf(stderr, "gcoap: timeout for msg ID %02u\n", coap_get_id(pdu));
@@ -63,8 +61,10 @@ init_protocol(ipv6_addr_t *remote)
 int
 update_humidity(char *buf, size_t count)
 {
+	int ret;
 	ssize_t len;
 	coap_pkt_t pdu;
+	netopt_state_t state;
 	uint8_t pbuf[GCOAP_PDU_BUF_SIZE];
 
 	if (gcoap_req_init(&pdu, pbuf, GCOAP_PDU_BUF_SIZE, 2, HUMIDITY_PATH))
@@ -74,6 +74,12 @@ update_humidity(char *buf, size_t count)
 	coap_hdr_set_type(pdu.hdr, COAP_TYPE_CON);
 	if ((len = gcoap_finish(&pdu, count, COAP_FORMAT_TEXT)) < 0)
 		return len;
+
+	/* The kw2xrf driver returns sizeof(netopt_state_t) on success. */
+	state = NETOPT_STATE_IDLE;
+	if ((ret = gnrc_netapi_set(netif, NETOPT_STATE,
+			0, &state, sizeof(netopt_state_t)) < 0))
+		return ret;
 
 	if (!gcoap_req_send2(pbuf, len, &ep, _resp_handler))
 		return -EIO;

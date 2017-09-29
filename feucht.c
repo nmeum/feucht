@@ -77,7 +77,7 @@ main(void)
 
 		if (hdc1000_read(&hdc, &temp, &hum) != HDC1000_OK) {
 			fprintf(stderr, "hdc1000_read failed\n");
-			continue;
+			return EXIT_FAILURE;
 		}
 
 		memset(buf, '\0', sizeof(buf));
@@ -87,7 +87,7 @@ main(void)
 
 		if ((ret = update_humidity(buf, ret + 1))) {
 			fprintf(stderr, "update_humidity failed: %d\n", ret);
-			continue;
+			return EXIT_FAILURE;
 		}
 
 		xtimer_sleep(1);
