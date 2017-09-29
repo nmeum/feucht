@@ -5,6 +5,7 @@
 
 #include "9p.h"
 #include "feucht.h"
+#include "kernel_types.h"
 
 #define GNRC_TIMEOUT 10 * 10000000
 
@@ -48,7 +49,7 @@ recvfn(void *buf, size_t count)
 	if (nbytes >= 0) {
 		state = NETOPT_STATE_SLEEP;
 		if ((ret = gnrc_netapi_set(netif, NETOPT_STATE,
-				0, &state, sizeof(&state))))
+				0, &state, sizeof(netopt_state_t)) < 0))
 			return ret;
 	}
 
@@ -97,7 +98,13 @@ int
 update_humidity(char *buf, size_t count)
 {
 	int ret;
-	
+	netopt_state_t state;
+
+	state = NETOPT_STATE_IDLE;
+	if ((ret = gnrc_netapi_set(netif, NETOPT_STATE,
+			0, &state, sizeof(netopt_state_t)) < 0))
+		return ret;
+
 	if ((ret = _9pwrite(&ctx, hfid, buf, count)) < 0)
 		return ret;
 

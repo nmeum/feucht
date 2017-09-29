@@ -8,6 +8,7 @@
 #include "feucht.h"
 #include "arpa/inet.h"
 #include "byteorder.h"
+#include "kernel_types.h"
 
 extern kernel_pid_t netif;
 
