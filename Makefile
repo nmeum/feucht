@@ -3,7 +3,7 @@ APPLICATION = feucht
 INCLUDES += -I$(CURDIR)/include
 
 # Board for which the application should be compiled
-BOARD ?= pba-d-01-kw2x
+BOARD ?= native
 
 # Disable optional assert(3) checks
 CFLAGS += -DNDEBUG
@@ -21,9 +21,6 @@ USEMODULE += xtimer
 USEMODULE += gnrc_icmpv6_echo
 USEMODULE += shell_commands
 
-# Module required for reading from the sensor
-USEMODULE += hdc1000
-
 # Backend specific files and modules
 ifeq (COAP,$(FEUCHT_PROTO))
   DIRS += coap
@@ -31,6 +28,9 @@ ifeq (COAP,$(FEUCHT_PROTO))
 
   USEMODULE += gcoap
   USEMODULE += coap
+  USEMODULE += sema
+
+  CFLAGS += -DCOAP_SEM -DGCOAP_RESEND_BUFS_MAX=30 -DGCOAP_REQ_WAITING_MAX=30
 else
   ifeq (9P,$(FEUCHT_PROTO))
     DIRS += 9p
@@ -56,5 +56,7 @@ endif
 ifneq (,$(FEUCHT_CHANNEL))
   CFLAGS += -DIEEE802154_DEFAULT_CHANNEL="$(FEUCHT_CHANNEL)"
 endif
+
+CFLAGS += -DFEUCHT_RUNS=15 -DFEUCHT_INTERVAL=0
 
 include $(RIOTBASE)/Makefile.include

@@ -3,33 +3,24 @@
 #include <string.h>
 #include <assert.h>
 
-#include "hdc1000.h"
-#include "hdc1000_params.h"
-
 #include "net/ipv6/addr.h"
 #include "xtimer.h"
 #include "feucht.h"
-
-/**
- * HDC1000 device.
- */
-static hdc1000_t hdc;
+#include "sema.h"
 
 /* import "ifconfig" shell command, used for printing addresses */
 extern int _netif_config(int argc, char **argv);
 
+#ifdef COAP_SEM
+extern sema_t coapsem;
+#endif
+
 int
 main(void)
 {
-	int ret;
+	int n, ret;
 	char buf[17];
-	int16_t temp, hum;
 	ipv6_addr_t remote;
-
-	if ((ret = hdc1000_init(&hdc, &hdc1000_params[0])) != HDC1000_OK) {
-		fprintf(stderr, "Couldn't initialize HDC1000: %d\n", ret);
-		return EXIT_FAILURE;
-	}
 
 	if (!ipv6_addr_from_str(&remote, FEUCHT_HOST)) {
 		fprintf(stderr, "Address '%s' is malformed\n", FEUCHT_HOST);
@@ -53,25 +44,30 @@ main(void)
 #else
 	for (;;) {
 #endif
-		if (hdc1000_read(&hdc, &temp, &hum) != HDC1000_OK) {
-			fprintf(stderr, "hdc1000_read failed\n");
-			continue;
-		}
+		buf[0] = '1';
+		buf[1] = '2';
+		buf[2] = '3';
+		buf[3] = '4';
+		buf[4] = '\n';
 
-		memset(buf, '\0', sizeof(buf));
-		ret = snprintf(buf, sizeof(buf) - 1, "%d", hum);
-
-		assert(ret < sizeof(buf));
-		buf[ret] = '\n';
-
-		if ((ret = update_humidity(buf, ret + 1))) {
+		if ((ret = update_humidity(buf, 5))) {
 			fprintf(stderr, "update_humidity failed: %d\n", ret);
 			continue;
 		}
 
-		xtimer_sleep(FEUCHT_INTERVAL);
+#ifdef COAP_SEM
+		if (sema_wait(&coapsem)) {
+			fprintf(stderr, "semaphore was destroyed\n");
+			break;
+		}
+#endif
+
+		if (FEUCHT_INTERVAL > 0)
+			xtimer_sleep(FEUCHT_INTERVAL);
 	}
 
 	free_protocol();
+	puts("DONE");
+
 	return EXIT_SUCCESS;
 }
