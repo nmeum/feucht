@@ -85,5 +85,6 @@ update_humidity(char *buf, size_t count)
 	if ((ret = _9pwrite(&ctx, hfid, buf, count)) < 0)
 		return ret;
 
+	puts("Humidity has been updated!");
 	return 0;
 }

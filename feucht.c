@@ -65,7 +65,6 @@ main(void)
 			continue;
 		}
 
-		puts("Humidity has been updated!");
 		xtimer_sleep(FEUCHT_INTERVAL);
 	}
 

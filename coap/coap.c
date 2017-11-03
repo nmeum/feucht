@@ -31,9 +31,10 @@ static void _resp_handler(unsigned req_state, coap_pkt_t* pdu,
 		return;
 	}
 
-	char *class_str = (coap_get_code_class(pdu) == COAP_CLASS_SUCCESS)
-		? "Success" : "Error";
-	printf("gcoap: response %s\n", class_str);
+	if (coap_get_code_class(pdu) == COAP_CLASS_SUCCESS)
+		puts("Humidity has been updated!");
+	else
+		puts("gcoap: error response class");
 }
 
 int
