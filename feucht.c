@@ -48,7 +48,11 @@ main(void)
 		return EXIT_FAILURE;
 	}
 
+#ifdef FEUCHT_RUNS
+	for (int n = 1; n <= FEUCHT_RUNS; n++) {
+#else
 	for (;;) {
+#endif
 		if (hdc1000_read(&hdc, &temp, &hum) != HDC1000_OK) {
 			fprintf(stderr, "hdc1000_read failed\n");
 			continue;
