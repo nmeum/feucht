@@ -48,6 +48,12 @@ init_protocol(ipv6_addr_t *remote)
 	return 0;
 }
 
+void
+free_protocol(void)
+{
+	return;
+}
+
 int
 update_humidity(char *buf, size_t count)
 {

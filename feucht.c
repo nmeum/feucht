@@ -68,7 +68,6 @@ main(void)
 		xtimer_sleep(FEUCHT_INTERVAL);
 	}
 
-	/* TODO cleanup */
-
+	free_protocol();
 	return EXIT_SUCCESS;
 }

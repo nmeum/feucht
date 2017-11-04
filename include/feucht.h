@@ -11,4 +11,5 @@
 #endif
 
 int init_protocol(ipv6_addr_t *remote);
+void free_protocol(void);
 int update_humidity(char *buf, size_t count);
