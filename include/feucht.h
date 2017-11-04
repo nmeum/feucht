@@ -1,13 +1,13 @@
 #ifndef FEUCHT_HOST
-	#error "FEUCHT_HOST was not defined."
+#error "FEUCHT_HOST was not defined."
 #endif
 
 #ifndef FEUCHT_PORT
-	#error "FEUCHT_PORT was not defined"
+#error "FEUCHT_PORT was not defined"
 #endif
 
 #ifndef FEUCHT_INTERVAL
-	#define FEUCHT_INTERVAL 60
+#define FEUCHT_INTERVAL 60
 #endif
 
 /**
