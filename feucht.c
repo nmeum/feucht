@@ -18,7 +18,7 @@ extern sema_t coapsem;
 int
 main(void)
 {
-	int n, ret;
+	int ret;
 	char buf[17];
 	ipv6_addr_t remote;
 
