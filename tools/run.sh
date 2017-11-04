@@ -12,7 +12,8 @@ trap "kill ${dumppid}" INT
 mkdir -p /tmp/ufs-root
 printf "" > /tmp/ufs-root/humidity
 
-(ufs -ntype tcp6 -root /tmp/ufs-root 1>/dev/null 2>&1) &
+#(ufs -ntype tcp6 -root /tmp/ufs-root 1>/dev/null 2>&1) &
+(coap-server-ba -ntype udp6 /tmp/ufs-root/humidity 1>/dev/null 2>&1) &
 serverpid=$!
 trap "kill ${serverpid}" INT
 
@@ -33,10 +34,11 @@ trap - INT
 
 sleep 1
 
-if [ "${exitstatus}" -eq 0 ]; then
-	transactions=$(wc -l < /tmp/ufs-root/humidity)
-	echo "${transactions}" > "${pcapfile}.transactions"
+transactions=$(wc -l < /tmp/ufs-root/humidity)
+echo "${transactions}" > "${pcapfile}.transactions"
 
-	./pcap "${pcapfile}" $((datasize * transactions)) \
-		> "${pcapfile}.primarydata"
-fi
+if [ ${transactions} -eq 0 ]; then
+	echo 0
+else
+	./pcap "${pcapfile}" $((datasize * transactions))
+fi > "${pcapfile}.primarydata"
