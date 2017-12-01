@@ -8,6 +8,11 @@ BOARD ?= pba-d-01-kw2x
 # Disable optional assert(3) checks
 CFLAGS += -DNDEBUG
 
+# CFLAGS taken from gnrc_minimal example
+CFLAGS += -DGNRC_IPV6_NETIF_ADDR_NUMOF=4 \
+	  -DGNRC_PKTBUF_SIZE=2048 \
+	  -DGNRC_IPV6_NC_SIZE=1
+
 # Change this to 0 show compiler invocation lines
 QUIET ?= 1
 
